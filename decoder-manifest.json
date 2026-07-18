@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sdkVersion": "1.0.0-rc.3",
+  "sdkVersion": "1.0.0-rc.4",
   "abiVersion": "1.0",
   "formats": [
     {"id":"xm","name":"XM","decoder":"openmpt","version":"0.8.0","category":"module","profiles":["full","server"],"seek":true,"subsong":true},

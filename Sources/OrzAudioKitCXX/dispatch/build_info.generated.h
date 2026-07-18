@@ -1,1 +1,1 @@
-#define ORZ_BUILD_INFO_JSON "{\"sdk\":\"OrzAudioCore\",\"version\":\"1.0.0-rc.3\",\"abi\":\"1.0\",\"fingerprint\":\"orzcore-1.0.0-rc.3-m1\"}"
+#define ORZ_BUILD_INFO_JSON "{\"sdk\":\"OrzAudioCore\",\"version\":\"1.0.0-rc.4\",\"abi\":\"1.0\",\"fingerprint\":\"orzcore-1.0.0-rc.4-m1\"}"

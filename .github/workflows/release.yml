@@ -24,6 +24,29 @@ jobs:
             ${{ runner.temp }}/release/*.tar.gz
             ${{ runner.temp }}/release/*.sha256
 
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: actions/cache@v4
+        with:
+          path: .wasm-build/cache
+          key: orz-decoder-sources-${{ runner.os }}-${{ hashFiles('script/fetch-decoder-sources.sh') }}
+      - name: Verify tag and manifest version
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./decoder-manifest.json').sdkVersion")"
+      - run: ./script/fetch-decoder-sources.sh
+      - run: ./script/build-native-libs.sh --strict
+      - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh linux-x86_64 "$RUNNER_TEMP/release"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server
+          path: |
+            ${{ runner.temp }}/release/*.tar.gz
+            ${{ runner.temp }}/release/*.sha256
+
   web:
     runs-on: ubuntu-24.04
     steps:
@@ -54,7 +77,7 @@ jobs:
           path: ${{ runner.temp }}/OrzAudioCore.xcframework.zip
 
   publish:
-    needs: [native, web, apple]
+    needs: [native, server, web, apple]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
