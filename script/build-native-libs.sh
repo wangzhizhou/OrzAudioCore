@@ -189,11 +189,14 @@ build_libgme() {
 
     prepare_build_directory "$build_dir"
     pushd "$build_dir" >/dev/null || return 1
+    local configure_log="$build_dir/configure.log"
+    local build_log="$build_dir/build.log"
 
     CC="$HOST_CC" CXX="$HOST_CXX" CFLAGS="$NATIVE_CFLAGS" CXXFLAGS="$NATIVE_CXXFLAGS" \
     cmake "$src_dir" \
         -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
         -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-}" \
         -DENABLE_UBSAN=OFF \
         -DGME_ENABLE_SPC=ON \
@@ -201,14 +204,16 @@ build_libgme() {
         -DGME_ENABLE_GBS=OFF \
         -DGME_ENABLE_GYM=OFF \
         -DGME_ENABLE_HES=OFF \
-        >/dev/null 2>&1 || {
+        >"$configure_log" 2>&1 || {
             warn "GME cmake failed"
+            cat "$configure_log" >&2
             popd >/dev/null
             return 1
         }
 
-    make -j"$JOBS" >/dev/null 2>&1 || {
+    make -j"$JOBS" >"$build_log" 2>&1 || {
         warn "GME make failed"
+        cat "$build_log" >&2
         popd >/dev/null
         return 1
     }
