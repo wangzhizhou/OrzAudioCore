@@ -75,9 +75,8 @@ fetch asap \
 fetch v2m \
   'https://github.com/Sound-Linux-More/v2mplayer/archive/2d6b6aaa880380a3945e1a314c4cf45099bc747d.tar.gz' \
   '27a2031c7431f74633fcbdfbb32974f2905480903e077b9c6fe4f40da783d4f8'
-fetch ahx2play \
-  'https://github.com/8bitbubsy/ahx2play/archive/6861c29bc6a2802d61d33ebe2839f60d8eaa4055.tar.gz' \
-  '7c8896ec42729ff27feb12505d889cfc0ee8bfa86554ab2a63132679a41827f7'
+install_vendor ahx2play ahx2play-6861c29-orz.tar.gz \
+  '438b7c034e714c9c72d77c9061ca01be216f95b24d05e8f8afa00310241fd9bb'
 install_vendor sc68 sc68-webaudio68-2.2.1-orz.tar.gz \
   '82a8723a70e20214088a1bc676f7b71afa1d0aad4e5cda06f706dae3137b8864'
 
