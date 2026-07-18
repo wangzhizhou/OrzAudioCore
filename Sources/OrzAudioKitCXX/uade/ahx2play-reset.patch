@@ -1,0 +1,15 @@
+--- a/paula.c
++++ b/paula.c
+@@ -570,6 +570,15 @@
+ 
+ bool paulaInit(int32_t audioFrequency)
+ {
++	/* Decoder reload must not retain BLEP/voice history from the prior song. */
++	memset(nullSample, 0, sizeof (nullSample));
++	memset(blep, 0, sizeof (blep));
++	memset(paula, 0, sizeof (paula));
++	memset(&audio, 0, sizeof (audio));
++
+ 	const int32_t minFreq = (int32_t)(PAULA_PAL_CLK / 113.0)+1; // mixer requires single-step deltas
+ 	audio.outputFreq = CLAMP(audioFrequency, minFreq, 384000);
+ 

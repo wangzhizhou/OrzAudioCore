@@ -1,0 +1,47 @@
+name: OrzAudioCore
+
+on: [push, pull_request]
+
+jobs:
+  abi-lite:
+    strategy:
+      matrix: {os: [macos-15, ubuntu-24.04]}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: node script/generate-decoder-manifest.mjs --check
+      - run: cmake --preset builtin-lite
+      - run: cmake --build --preset builtin-lite
+      - run: ctest --test-dir .cmake-build/builtin-lite --output-on-failure
+      - run: swift test
+      - run: cmake --install .cmake-build/builtin-lite --prefix "$RUNNER_TEMP/orzcore"
+      - run: cmake -S Tests/SDK/consumer -B "$RUNNER_TEMP/consumer" -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/orzcore"
+      - run: cmake --build "$RUNNER_TEMP/consumer"
+      - run: "$RUNNER_TEMP/consumer/consumer"
+
+  sanitizer-lite:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          cmake -S . -B .cmake-build/sanitizer-lite
+          -DORZ_PROFILE=builtin-lite -DORZ_BUILD_TESTS=ON
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+      - run: cmake --build .cmake-build/sanitizer-lite
+      - run: ctest --test-dir .cmake-build/sanitizer-lite --output-on-failure
+
+  web-binding:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - working-directory: SDK/Web
+        run: npm install
+      - working-directory: SDK/Web
+        run: npm run build
