@@ -49,6 +49,11 @@ target_include_directories(OrzAudioCore
     PUBLIC $<BUILD_INTERFACE:${ORZ_SOURCE}/include> $<INSTALL_INTERFACE:include>
     PRIVATE ${ORZ_SOURCE}/dispatch ${ORZ_THIRDPARTY})
 target_compile_definitions(OrzAudioCore PRIVATE ORZ_AUDIO_CORE_BUILD=1)
+if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+    # Builtin MIDI and BP synthesis use libm. Keep it a transitive dependency
+    # because consumers may link the static OrzAudioCore archive.
+    target_link_libraries(OrzAudioCore PUBLIC m)
+endif()
 
 if(ORZ_PROFILE STREQUAL "builtin-lite")
     target_sources(OrzAudioCore PRIVATE ${ORZ_SOURCE}/stub_decoders.c)

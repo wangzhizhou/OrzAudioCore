@@ -28,6 +28,9 @@ let package = Package(
             ],
             cxxSettings: [
                 .headerSearchPath("dispatch"),
+            ],
+            linkerSettings: [
+                .linkedLibrary("m", .when(platforms: [.linux])),
             ]
         ),
         .target(
