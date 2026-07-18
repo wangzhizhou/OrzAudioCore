@@ -19,8 +19,15 @@ The `full` and `server` profiles require the locked native decoder archives in
 `Libraries/OrzAudioKit/native`. Build those archives with
 `script/build-native-libs.sh`, then select the matching CMake preset.
 
-The stable public API is documented in `Docs/orz-audio-core.md`. Format and
+The stable public API is documented in `docs/orz-audio-core.md`. Format and
 decoder capabilities are generated from `decoder-manifest.json`.
+
+Before tagging a release, validate every package projection and generated file:
+
+```bash
+node script/check-release-readiness.mjs
+node script/generate-decoder-manifest.mjs --check
+```
 
 ## Packages
 

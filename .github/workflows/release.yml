@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: 22}
       - name: Verify tag and manifest version
-        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./decoder-manifest.json').sdkVersion")"
+        run: node script/check-release-readiness.mjs "${GITHUB_REF_NAME#v}"
       - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh builtin-lite "$RUNNER_TEMP/release"
       - uses: actions/upload-artifact@v4
         with:
@@ -41,7 +41,7 @@ jobs:
           path: .wasm-build/cache
           key: orz-decoder-sources-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('script/fetch-decoder-sources.sh') }}
       - name: Verify tag and manifest version
-        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./decoder-manifest.json').sdkVersion")"
+        run: node script/check-release-readiness.mjs "${GITHUB_REF_NAME#v}"
       - run: ./script/fetch-decoder-sources.sh
       - run: ./script/build-native-libs.sh --strict
       - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh "${{ matrix.preset }}" "$RUNNER_TEMP/release"
@@ -59,6 +59,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22, registry-url: "https://registry.npmjs.org"}
+      - run: node script/check-release-readiness.mjs "${GITHUB_REF_NAME#v}"
       - uses: mymindstorm/setup-emsdk@v14
         with: {version: "4.0.10"}
       - run: ./script/build-wasm-lite.sh
@@ -75,6 +76,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22}
+      - run: node script/check-release-readiness.mjs "${GITHUB_REF_NAME#v}"
       - run: ./script/build-xcframework.sh "$RUNNER_TEMP/apple"
       - run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/apple/OrzAudioCore.xcframework" "$RUNNER_TEMP/OrzAudioCore.xcframework.zip"
       - uses: actions/upload-artifact@v4
@@ -88,5 +90,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with: {path: release, merge-multiple: true}
-      - run: gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --prerelease --generate-notes --verify-tag
+      - name: Publish release candidate
+        if: contains(github.ref_name, '-')
+        run: gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --prerelease --generate-notes --verify-tag
+        env: {GH_TOKEN: "${{ github.token }}"}
+      - name: Publish stable release
+        if: ${{ !contains(github.ref_name, '-') }}
+        run: gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --generate-notes --verify-tag --latest
         env: {GH_TOKEN: "${{ github.token }}"}

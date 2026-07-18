@@ -37,6 +37,9 @@ swift build --product OrzAudioCore
 # TypeScript 类型检查
 cd SDK/Web && npm run build
 
+# 校验 manifest、npm lockfile、CMake 与发布版本一致性
+node script/check-release-readiness.mjs
+
 # 组装可发布的 native SDK tarball、checksum 和 CycloneDX SBOM
 ./script/package-sdk.sh builtin-lite
 ```
@@ -52,4 +55,5 @@ Apple mobile 当前提供 dependency-free profile 的 device/simulator preset。
 - decoder 修复：patch。
 - 每次发布必须附 decoder manifest、第三方许可证、checksum、ABI consumer 结果和 PCM conformance 报告。
 - `package-sdk.sh` 会生成安装树、manifest、license、CycloneDX SBOM、tarball 和 SHA-256 checksum，作为后续 release job 的唯一输入。
+- `check-release-readiness.mjs` 必须在 CI 与 tag release 中通过；带 `-` 的版本发布为 prerelease，稳定语义版本自动发布为 latest release。
 - OrzMusic 固定依赖 SDK 版本；升级后旧缓存因 fingerprint 变化自动失效，可通过依赖版本直接回滚。

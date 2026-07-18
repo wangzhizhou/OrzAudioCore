@@ -74,7 +74,9 @@ export function createDecoder(module: EmscriptenOrzModule, data: Uint8Array, for
     module.HEAPU8.set(data, dataPointer); module.stringToUTF8(format, formatPointer, length);
     module.HEAPU32[outputPointer >>> 2] = 0;
     check(module._orz_decoder_create_memory(dataPointer, data.length, formatPointer, 0, outputPointer), 'create');
-    return new AudioDecoder(module, module.HEAPU32[outputPointer >>> 2]);
+    const handle = module.HEAPU32[outputPointer >>> 2];
+    try { return new AudioDecoder(module, handle); }
+    catch (error) { module._orz_decoder_destroy_v1(handle); throw error; }
   } finally { module._free(outputPointer); module._free(formatPointer); module._free(dataPointer); }
 }
 

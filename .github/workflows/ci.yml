@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22}
+      - run: node script/check-release-readiness.mjs
       - run: node script/generate-decoder-manifest.mjs --check
       - run: cmake --preset builtin-lite
       - run: cmake --build --preset builtin-lite
@@ -41,7 +42,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22}
+      - run: node script/check-release-readiness.mjs
       - working-directory: SDK/Web
-        run: npm install
+        run: npm ci
       - working-directory: SDK/Web
         run: npm run build
+      - working-directory: SDK/Web
+        run: npm test
