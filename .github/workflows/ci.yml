@@ -36,6 +36,27 @@ jobs:
       - run: cmake --build .cmake-build/sanitizer-lite
       - run: ctest --test-dir .cmake-build/sanitizer-lite --output-on-failure
 
+  full-macos:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: actions/cache@v4
+        with:
+          path: .wasm-build/cache
+          key: orz-decoder-sources-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('script/fetch-decoder-sources.sh') }}
+      - run: ./script/fetch-decoder-sources.sh
+      - run: ./script/build-native-libs.sh --strict
+      - id: host
+        run: echo "preset=macos-$(uname -m)" >> "$GITHUB_OUTPUT"
+      - run: ./script/build-sdk.sh "${{ steps.host.outputs.preset }}"
+      - run: cmake --install ".cmake-build/${{ steps.host.outputs.preset }}" --prefix "$RUNNER_TEMP/orzcore"
+      - run: cmake -S Tests/SDK/consumer -B "$RUNNER_TEMP/consumer" -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/orzcore"
+      - run: cmake --build "$RUNNER_TEMP/consumer"
+      - run: DYLD_LIBRARY_PATH="$RUNNER_TEMP/orzcore/lib" "$RUNNER_TEMP/consumer/consumer"
+
   web-binding:
     runs-on: ubuntu-24.04
     steps:

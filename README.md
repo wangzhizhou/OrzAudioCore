@@ -32,7 +32,7 @@ node script/generate-decoder-manifest.mjs --check
 ## Packages
 
 - C/C++: CMake install package and pkg-config metadata.
-- Swift: source package for builtin-lite; release XCFrameworks for Apple apps.
+- Swift: source package and iOS XCFramework for builtin-lite; versioned full-profile macOS SDK tarball.
 - Web: `SDK/Web`, published as `@orzmusic/audio-core` with versioned WASM assets.
 
 OrzAudioCore contains decoding, probing, metadata, seek and PCM rendering only.

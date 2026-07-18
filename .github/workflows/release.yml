@@ -72,17 +72,32 @@ jobs:
 
   apple:
     runs-on: macos-15
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22}
+      - uses: actions/cache@v4
+        with:
+          path: .wasm-build/cache
+          key: orz-decoder-sources-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('script/fetch-decoder-sources.sh') }}
       - run: node script/check-release-readiness.mjs "${GITHUB_REF_NAME#v}"
+      - run: ./script/fetch-decoder-sources.sh
+      - run: ./script/build-native-libs.sh --strict
+      - id: host
+        run: echo "preset=macos-$(uname -m)" >> "$GITHUB_OUTPUT"
+      - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh "${{ steps.host.outputs.preset }}" "$RUNNER_TEMP/release"
       - run: ./script/build-xcframework.sh "$RUNNER_TEMP/apple"
       - run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/apple/OrzAudioCore.xcframework" "$RUNNER_TEMP/OrzAudioCore.xcframework.zip"
+      - run: shasum -a 256 "$RUNNER_TEMP/OrzAudioCore.xcframework.zip" > "$RUNNER_TEMP/OrzAudioCore.xcframework.zip.sha256"
       - uses: actions/upload-artifact@v4
         with:
           name: apple
-          path: ${{ runner.temp }}/OrzAudioCore.xcframework.zip
+          path: |
+            ${{ runner.temp }}/release/*.tar.gz
+            ${{ runner.temp }}/release/*.sha256
+            ${{ runner.temp }}/OrzAudioCore.xcframework.zip
+            ${{ runner.temp }}/OrzAudioCore.xcframework.zip.sha256
 
   publish:
     needs: [native, server, web, apple]

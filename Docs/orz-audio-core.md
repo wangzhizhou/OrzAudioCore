@@ -28,8 +28,10 @@ CI 使用 `--check` 阻止提交过期的注册表或 build info。`orz_build_in
 # 无第三方依赖的 BP/MIDI/YM SDK，并运行 C/C++ consumer 测试
 ./script/build-sdk.sh builtin-lite
 
-# 当前主机完整 SDK
-./script/build-sdk.sh macos-arm64
+# 当前 macOS 架构的完整 SDK（需要先构建锁定版本的第三方库）
+./script/fetch-decoder-sources.sh
+./script/build-native-libs.sh --strict
+./script/build-sdk.sh "macos-$(uname -m)"
 
 # Swift Package 产品
 swift build --product OrzAudioCore
@@ -46,7 +48,12 @@ node script/check-release-readiness.mjs
 
 CMake 输出 `OrzAudioCore::OrzAudioCore` target，并可安装公共头文件和 CMake package。Swift 使用 `AudioDecoder`；Web 包使用 `createDecoder()`，负责 WASM 内存和句柄生命周期。
 
-Apple mobile 当前提供 dependency-free profile 的 device/simulator preset。完整第三方 decoder 的 iOS archive 在独立 SDK 仓库接入各依赖的交叉编译后合并为 XCFramework。
+Apple 发布包含两类制品：`OrzAudioCore.xcframework.zip` 是 iOS device/simulator
+可直接使用的 dependency-free `builtin-lite` profile；
+`OrzAudioCore-<version>-macos-<arch>.tar.gz` 是包含全部 decoder 的 macOS SDK，
+带 CMake package、公共头文件、manifest、SBOM 与 checksum。制品名称明确区分能力，
+调用端不得把 lite XCFramework 当作 full profile。完整第三方 decoder 的 iOS archive
+仍需完成所有依赖的交叉编译后再纳入 XCFramework。
 
 ## 发布规则
 
@@ -55,5 +62,6 @@ Apple mobile 当前提供 dependency-free profile 的 device/simulator preset。
 - decoder 修复：patch。
 - 每次发布必须附 decoder manifest、第三方许可证、checksum、ABI consumer 结果和 PCM conformance 报告。
 - `package-sdk.sh` 会生成安装树、manifest、license、CycloneDX SBOM、tarball 和 SHA-256 checksum，作为后续 release job 的唯一输入。
+- Apple release job 必须以 `--strict` 构建第三方库并通过 full macOS C consumer；任何 decoder archive 缺失都会阻止发布。
 - `check-release-readiness.mjs` 必须在 CI 与 tag release 中通过；带 `-` 的版本发布为 prerelease，稳定语义版本自动发布为 latest release。
 - OrzMusic 固定依赖 SDK 版本；升级后旧缓存因 fingerprint 变化自动失效，可通过依赖版本直接回滚。
