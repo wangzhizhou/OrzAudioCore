@@ -19,4 +19,9 @@ if [[ -n "$unexpected" ]]; then
   exit 1
 fi
 
+if ! readelf -d "$lib" | grep -qE 'Shared library: \[libz\.so'; then
+  echo "OrzAudioCore full ELF is missing its zlib DT_NEEDED dependency" >&2
+  exit 1
+fi
+
 printf 'Verified %s exports only the ABI v1 symbol set\n' "$lib"

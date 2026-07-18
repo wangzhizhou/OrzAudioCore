@@ -66,7 +66,6 @@ if(ORZ_PROFILE STREQUAL "builtin-lite")
 else()
     target_sources(OrzAudioCore PRIVATE ${ORZ_FULL_SOURCES})
     find_package(ZLIB REQUIRED)
-    target_link_libraries(OrzAudioCore PUBLIC ZLIB::ZLIB)
     target_include_directories(OrzAudioCore PRIVATE
         ${ORZ_THIRDPARTY}/sidplayfp ${ORZ_THIRDPARTY}/adplug ${ORZ_THIRDPARTY}/binio
         ${ORZ_THIRDPARTY}/sc68 ${ORZ_THIRDPARTY}/v2m_headers ${ORZ_THIRDPARTY}/v2m_headers/v2m
@@ -77,6 +76,9 @@ else()
         find_library(ORZ_${dependency}_LIB NAMES ${dependency} PATHS ${ORZ_NATIVE_LIB} NO_DEFAULT_PATH REQUIRED)
         target_link_libraries(OrzAudioCore PRIVATE ${ORZ_${dependency}_LIB})
     endforeach()
+    # Keep zlib after static decoder archives so GNU ld --as-needed records
+    # libz in the shared object's DT_NEEDED list.
+    target_link_libraries(OrzAudioCore PUBLIC ZLIB::ZLIB)
 endif()
 
 include(GNUInstallDirs)
