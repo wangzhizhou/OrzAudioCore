@@ -89,7 +89,7 @@ jobs:
       - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh "${{ steps.host.outputs.preset }}" "$RUNNER_TEMP/release"
       - run: ./script/build-xcframework.sh "$RUNNER_TEMP/apple"
       - run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/apple/OrzAudioCore.xcframework" "$RUNNER_TEMP/OrzAudioCore.xcframework.zip"
-      - run: shasum -a 256 "$RUNNER_TEMP/OrzAudioCore.xcframework.zip" > "$RUNNER_TEMP/OrzAudioCore.xcframework.zip.sha256"
+      - run: (cd "$RUNNER_TEMP" && shasum -a 256 OrzAudioCore.xcframework.zip) > "$RUNNER_TEMP/OrzAudioCore.xcframework.zip.sha256"
       - uses: actions/upload-artifact@v4
         with:
           name: apple

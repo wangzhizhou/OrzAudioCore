@@ -18,5 +18,5 @@ cp "$ROOT/Docs/orz-audio-core.md" "$STAGE/README.md"
 
 node "$ROOT/script/generate-release-metadata.mjs" "$STAGE"
 tar -C "$OUT" -czf "$STAGE.tar.gz" "$(basename "$STAGE")"
-shasum -a 256 "$STAGE.tar.gz" > "$STAGE.tar.gz.sha256"
+(cd "$(dirname "$STAGE")" && shasum -a 256 "$(basename "$STAGE").tar.gz") > "$STAGE.tar.gz.sha256"
 echo "$STAGE.tar.gz"
