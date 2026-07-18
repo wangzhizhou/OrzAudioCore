@@ -7,4 +7,5 @@ Name: OrzAudioCore
 Description: Versioned cross-platform chiptune decoder ABI
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -lOrzAudioCore
+Libs.private: -lz
 Cflags: -I${includedir}

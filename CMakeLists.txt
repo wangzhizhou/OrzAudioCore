@@ -59,6 +59,8 @@ if(ORZ_PROFILE STREQUAL "builtin-lite")
     target_sources(OrzAudioCore PRIVATE ${ORZ_SOURCE}/stub_decoders.c)
 else()
     target_sources(OrzAudioCore PRIVATE ${ORZ_FULL_SOURCES})
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(OrzAudioCore PUBLIC ZLIB::ZLIB)
     target_include_directories(OrzAudioCore PRIVATE
         ${ORZ_THIRDPARTY}/sidplayfp ${ORZ_THIRDPARTY}/adplug ${ORZ_THIRDPARTY}/binio
         ${ORZ_THIRDPARTY}/sc68 ${ORZ_THIRDPARTY}/v2m_headers ${ORZ_THIRDPARTY}/v2m_headers/v2m
