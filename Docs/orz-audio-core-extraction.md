@@ -1,5 +1,9 @@
 # OrzAudioCore 独立仓库迁移清单
 
+正式仓库：<https://github.com/OrzGeeker/OrzAudioCore>
+
+独立仓库已于 2026-07-18 建立 `main`，初始 SDK 提交为 `5fe6d07`。
+
 当前仓库已经将 SDK 边界固定，迁移时应保留以下目录和文件：
 
 - `Sources/OrzAudioKitCXX/`：核心、decoder 和公共 C ABI。
