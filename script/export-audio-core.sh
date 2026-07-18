@@ -38,6 +38,7 @@ cp "$ROOT/SDK/Standalone/.gitignore" "$DEST/.gitignore"
 cp -R "$ROOT/SDK/Standalone/Tests/." "$DEST/Tests/"
 cp "$ROOT/SDK/Standalone/.github/workflows/ci.yml" "$DEST/.github/workflows/ci.yml"
 cp "$ROOT/SDK/Standalone/.github/workflows/release.yml" "$DEST/.github/workflows/release.yml"
+cp "$ROOT/SDK/Standalone/.github/workflows/full.yml" "$DEST/.github/workflows/full.yml"
 cp "$ROOT/Docs/orz-audio-core.md" "$ROOT/Docs/orz-audio-core-extraction.md" "$DEST/Docs/"
 
 for script in \

@@ -1,0 +1,33 @@
+name: Full Server SDK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  linux-full:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - uses: mymindstorm/setup-emsdk@v14
+        with: {version: "4.0.10"}
+      - uses: actions/cache@v4
+        with:
+          path: .wasm-build/cache
+          key: orz-decoder-sources-${{ runner.os }}-${{ hashFiles('script/build-wasm.sh') }}
+      - name: Fetch and build locked decoder sources
+        run: ORZ_WASM_OUTPUT_DIR="$RUNNER_TEMP/wasm-full" ./script/build-wasm.sh
+      - name: Build native decoder archives
+        run: ./script/build-native-libs.sh
+      - name: Build and test full SDK
+        run: ./script/build-sdk.sh linux-x86_64
+      - name: Package full server SDK
+        run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh linux-x86_64 "$RUNNER_TEMP/release"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OrzAudioCore-linux-full
+          path: |
+            ${{ runner.temp }}/release/*.tar.gz
+            ${{ runner.temp }}/release/*.sha256

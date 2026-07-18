@@ -22,7 +22,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-OUTPUT_DIR="$PROJECT_DIR/Resources/Public/audio"
+OUTPUT_DIR="${ORZ_WASM_OUTPUT_DIR:-$PROJECT_DIR/Resources/Public/audio}"
 BUILD_DIR="$PROJECT_DIR/.wasm-build"
 CACHE_DIR="$BUILD_DIR/cache"
 
