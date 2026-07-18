@@ -21,13 +21,19 @@ const sbom = {
   specVersion: '1.5',
   version: 1,
   metadata: { component: { type: 'library', name: 'OrzAudioCore', version: manifest.sdkVersion } },
-  components: [...packages.values()].map(component => ({ type: 'library', ...component }))
+  components: [...packages.values()].map(({formats, ...component}) => ({
+    type: 'library',
+    ...component,
+    properties: [{name: 'orz:formats', value: formats.join(',')}]
+  }))
 };
 fs.writeFileSync(path.join(stage, 'metadata', 'sbom.cdx.json'), `${JSON.stringify(sbom, null, 2)}\n`);
 fs.writeFileSync(path.join(stage, 'metadata', 'build-info.json'), `${JSON.stringify({
   sdkVersion: manifest.sdkVersion,
   abiVersion: manifest.abiVersion,
-  generatedAt: new Date().toISOString(),
+  generatedAt: process.env.SOURCE_DATE_EPOCH
+    ? new Date(Number(process.env.SOURCE_DATE_EPOCH) * 1000).toISOString()
+    : new Date().toISOString(),
   decoderCount: packages.size,
   formatCount: manifest.formats.length
 }, null, 2)}\n`);

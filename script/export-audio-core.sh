@@ -37,10 +37,11 @@ cp "$ROOT/SDK/Standalone/README.md" "$DEST/README.md"
 cp "$ROOT/SDK/Standalone/.gitignore" "$DEST/.gitignore"
 cp -R "$ROOT/SDK/Standalone/Tests/." "$DEST/Tests/"
 cp "$ROOT/SDK/Standalone/.github/workflows/ci.yml" "$DEST/.github/workflows/ci.yml"
+cp "$ROOT/SDK/Standalone/.github/workflows/release.yml" "$DEST/.github/workflows/release.yml"
 cp "$ROOT/Docs/orz-audio-core.md" "$ROOT/Docs/orz-audio-core-extraction.md" "$DEST/Docs/"
 
 for script in \
-  build-native-libs.sh build-sdk.sh build-wasm.sh build-xcframework.sh \
+  build-native-libs.sh build-sdk.sh build-wasm.sh build-wasm-lite.sh build-xcframework.sh \
   generate-decoder-manifest.mjs generate-release-metadata.mjs package-sdk.sh export-audio-core.sh; do
   cp "$ROOT/script/$script" "$DEST/script/$script"
 done

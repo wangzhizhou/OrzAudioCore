@@ -1,0 +1,63 @@
+name: Release OrzAudioCore
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Verify tag and manifest version
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./decoder-manifest.json').sdkVersion")"
+      - run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" ./script/package-sdk.sh builtin-lite "$RUNNER_TEMP/release"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native
+          path: |
+            ${{ runner.temp }}/release/*.tar.gz
+            ${{ runner.temp }}/release/*.sha256
+
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, registry-url: "https://registry.npmjs.org"}
+      - uses: mymindstorm/setup-emsdk@v14
+        with: {version: "4.0.10"}
+      - run: ./script/build-wasm-lite.sh
+      - working-directory: SDK/Web
+        run: npm install && npm run build && npm pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: SDK/Web/orzmusic-audio-core-*.tgz
+
+  apple:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: ./script/build-xcframework.sh "$RUNNER_TEMP/apple"
+      - run: ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/apple/OrzAudioCore.xcframework" "$RUNNER_TEMP/OrzAudioCore.xcframework.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apple
+          path: ${{ runner.temp }}/OrzAudioCore.xcframework.zip
+
+  publish:
+    needs: [native, web, apple]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {path: release, merge-multiple: true}
+      - run: gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --prerelease --generate-notes --verify-tag
+        env: {GH_TOKEN: "${{ github.token }}"}
