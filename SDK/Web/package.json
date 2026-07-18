@@ -1,10 +1,10 @@
 {
   "name": "@orzmusic/audio-core",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "type": "module",
   "exports": {
     ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
-    "./wasm/orz_audio_builtin.js": "./wasm/orz_audio_builtin.js",
+    "./wasm/orz_audio_builtin.mjs": "./wasm/orz_audio_builtin.mjs",
     "./decoder-manifest.json": "./decoder-manifest.json"
   },
   "files": ["dist", "wasm", "decoder-manifest.json"],
