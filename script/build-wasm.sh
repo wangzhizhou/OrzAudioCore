@@ -552,7 +552,8 @@ build_libsidplayfp() {
 
     # The generated sidversion.h lives under the build tree, while the public
     # headers remain in the source tree. Preserve both include roots.
-    echo "$lib_path|$inc_path|$build_dir/src"
+    # The sidlite builder headers also ship with the fetched source.
+    echo "$lib_path|$inc_path|$build_dir/src|$src_dir/src/builders/sidlite-builder"
 }
 
 # ------------------------------------------------------------------
